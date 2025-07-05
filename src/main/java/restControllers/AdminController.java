@@ -1,7 +1,9 @@
 package restControllers;
 
+
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import entity.Users;
+import model.UserPrincipal;
 import services.UserServiceImpl;
 
 @RestController
@@ -24,7 +27,9 @@ public class AdminController {
 	}
 	
 	@GetMapping("/getusers")
-	public List<Users> getUsers() {
+	public List<Users> getUsers(@AuthenticationPrincipal UserPrincipal principal) {
+		System.out.println("Principal: " + principal.getUsername());
+		System.out.println("Get users api method hit");
 		return this.userServiceImpl.getAll();
 	}
 	

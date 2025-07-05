@@ -3,8 +3,11 @@ package entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,7 +27,8 @@ public class Role {
 	private String role;
 	
 	// inverse relation with the users, many to many ? one to many?
-	@ManyToMany(mappedBy = "roles")
+	@ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
+	@JsonBackReference
 	private Set<Users> users = new HashSet<Users>();
 
 	public Long getId() {

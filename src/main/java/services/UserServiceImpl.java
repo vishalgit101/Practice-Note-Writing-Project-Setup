@@ -1,21 +1,27 @@
 package services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import entity.Role;
 import entity.Users;
 import repos.RoleRepo;
 import repos.UserRepo;
 
+@Service
 public class UserServiceImpl implements UserService {
 
 	// Di Repo
 	private final UserRepo userRepo;
 	private final RoleRepo roleRepo;
+	
+	private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
 	
 	@Autowired
 	public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo) {
@@ -30,6 +36,8 @@ public class UserServiceImpl implements UserService {
 		Optional<Role> optionalRole = this.roleRepo.findByRole("USER");
 		Role role = optionalRole.orElseThrow(() -> new RuntimeException("No Role found with role name USER"));
 		user.addRole(role);
+		user.setPassword(encoder.encode(user.getPassword()));
+		user.setCreatedDate(LocalDateTime.now());
 		return this.userRepo.save(user);
 	}
 

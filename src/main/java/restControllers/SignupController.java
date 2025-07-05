@@ -10,7 +10,7 @@ import entity.Users;
 import services.UserServiceImpl;
 
 @RestController
-@RequestMapping("/api/signup")
+@RequestMapping("/signup")
 public class SignupController {
 	
 	// DI User Service

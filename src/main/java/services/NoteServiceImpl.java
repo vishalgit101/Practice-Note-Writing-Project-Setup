@@ -31,7 +31,7 @@ public class NoteServiceImpl implements NoteService {
 	@Override
 	public Note updateNoteForUser(Long id, String content, String username) {
 		Optional<Note> tempNote = this.notesRepo.findById(id);
-		Note note = tempNote.orElseThrow(null);
+		Note note = tempNote.orElseThrow(()-> new RuntimeException("Note not found"));
 		note.setContent(content);
 		note.setOwnerUsername(username); // this can be omitted
 		return this.notesRepo.save(note);
@@ -42,7 +42,7 @@ public class NoteServiceImpl implements NoteService {
 		
 		Optional<Note> tempNote = this.notesRepo.findById(id);
 		
-		Note note = tempNote.orElseThrow(null);
+		Note note = tempNote.orElseThrow(()-> new RuntimeException("Note not found"));
 		this.notesRepo.delete(note);
 		
 	}

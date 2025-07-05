@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import jakarta.annotation.security.PermitAll;
+
 
 @Configuration
 @EnableWebSecurity
@@ -21,17 +23,27 @@ public class SecurityConfigs {
 	// DI Service and jwt filters etc
 	private UserDetailsService myUserDetailsService;
 	
+	
+	
+	public SecurityConfigs(UserDetailsService myUserDetailsService) {
+		super();
+		this.myUserDetailsService = myUserDetailsService;
+	}
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http
 					.csrf(csrf -> csrf.disable())
-					.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+					.authorizeHttpRequests(auth -> 
+						auth.requestMatchers("/login", "/signup").permitAll()
+						.requestMatchers("/api/admin/**").hasRole("ADMIN")
+						.anyRequest().authenticated())
 					.httpBasic(Customizer.withDefaults())
 					.build();
 					
 	}
 	
-	@Bean
+	/*@Bean
 	public UserDetailsService userDetails() {
 		UserDetails user1 = User.builder().username("Vishal").password("{noop}pass123").roles("admin", "manager", "user").build();
 		
@@ -40,14 +52,14 @@ public class SecurityConfigs {
 		UserDetails user3 = User.builder().username("NoOne").password("{noop}pass123").roles("user").build();
 		
 		return new InMemoryUserDetailsManager(user1, user2, user3);
-	}
+	}*/
 	
 	@Bean
 	public DaoAuthenticationProvider authProvider() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setPasswordEncoder(new BCryptPasswordEncoder(10));
 		// set userservice
-		provider.setUserDetailsService(null); // replace null with the service
+		provider.setUserDetailsService(this.myUserDetailsService); // replace null with the service
 		return provider;
 	}
 	

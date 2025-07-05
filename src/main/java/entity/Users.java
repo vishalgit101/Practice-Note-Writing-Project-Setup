@@ -6,6 +6,7 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,8 +27,8 @@ public class Users {
 	@Column(name="username")
 	private String username;
 	
-	@Column(name="email")
-	private String email;
+	/*@Column(name="email")
+	private String email;*/
 	
 	@Column(name="password")
 	private String password;
@@ -38,7 +39,7 @@ public class Users {
 	@Column(name="updated_time")
 	private LocalDateTime updatedDate;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name="user_role", joinColumns = @JoinColumn(name="user_id", referencedColumnName = "id"),
 	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private Set<Role> roles = new HashSet<Role>();
@@ -52,7 +53,7 @@ public class Users {
 		super();
 		this.id = id;
 		this.username = username;
-		this.email = email;
+		//this.email = email;
 		this.password = password;
 		this.createdDate = createdDate;
 		this.updatedDate = updatedDate;
@@ -75,13 +76,13 @@ public class Users {
 		this.username = username;
 	}
 
-	public String getEmail() {
+	/*public String getEmail() {
 		return email;
 	}
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
+	}*/
 
 	public String getPassword() {
 		return password;
