@@ -2,17 +2,22 @@ package configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import filter.JwtFilter;
 import jakarta.annotation.security.PermitAll;
 
 
@@ -23,11 +28,12 @@ public class SecurityConfigs {
 	// DI Service and jwt filters etc
 	private UserDetailsService myUserDetailsService;
 	
+	private JwtFilter jwtFilter;
 	
-	
-	public SecurityConfigs(UserDetailsService myUserDetailsService) {
+	public SecurityConfigs(UserDetailsService myUserDetailsService, JwtFilter jwtFilter) {
 		super();
 		this.myUserDetailsService = myUserDetailsService;
+		this.jwtFilter = jwtFilter;
 	}
 
 	@Bean
@@ -39,6 +45,8 @@ public class SecurityConfigs {
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.anyRequest().authenticated())
 					.httpBasic(Customizer.withDefaults())
+					.sessionManagement(session  -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class)
 					.build();
 					
 	}
@@ -62,5 +70,11 @@ public class SecurityConfigs {
 		provider.setUserDetailsService(this.myUserDetailsService); // replace null with the service
 		return provider;
 	}
+	
+	//auth manager
+	@Bean
+	public AuthenticationManager authManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	} 
 	
 }

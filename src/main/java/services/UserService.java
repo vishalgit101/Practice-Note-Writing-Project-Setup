@@ -15,5 +15,7 @@ public interface UserService {
 	Users findByUserId(Long userId);
 	
 	List<Users> getAll();
+
+	String verify(Users user);
 	
 }

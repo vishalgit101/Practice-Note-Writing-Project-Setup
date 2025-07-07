@@ -120,5 +120,13 @@ public class Users {
 		this.roles.add(role);
 		role.getUsers().add(this);
 	}
+
+	@Override
+	public String toString() {
+		return "Users [id=" + id + ", username=" + username + ", password=" + password + ", createdDate=" + createdDate
+				+ ", updatedDate=" + updatedDate + "]";
+	}
+	
+	
 	
 }

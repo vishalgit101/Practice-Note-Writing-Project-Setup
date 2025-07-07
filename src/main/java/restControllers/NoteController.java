@@ -42,7 +42,7 @@ public class NoteController {
 	public List<Note> getUserNotes(@AuthenticationPrincipal UserDetails userDetails){
 		
 		String username = userDetails.getUsername();
-		System.out.println("Username: " + username);
+		System.out.println("Username: In Get Notes Principal: " + username);
 		return this.noteService.getNotesForUser(username);
 		
 	}
