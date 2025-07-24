@@ -10,7 +10,7 @@ import entity.Users;
 import services.UserServiceImpl;
 
 @RestController
-@RequestMapping("/signup")
+@RequestMapping("/signup") // could change it to /api/auth
 public class SignupController {
 	
 	// DI User Service
@@ -21,7 +21,7 @@ public class SignupController {
 		this.userServiceImpl = userServiceImpl;
 	}
 	
-	@PostMapping
+	@PostMapping // (/public/signup
 	public Users registerUser(@RequestBody Users user ) {
 		return this.userServiceImpl.registerUser(user);
 	}

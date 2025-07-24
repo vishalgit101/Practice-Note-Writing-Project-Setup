@@ -39,6 +39,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Users registerUser(Users user) {
+		
+		//first check if the user exits already or not
+		//Optional<Users> optionalUser = this.userRepo.findByUsername(user.getUsername());
+		
+		if(this.userRepo.existsByUsername(user.getUsername())) {
+			System.out.println("User already exists");
+			throw new RuntimeException("User already exists");
+		}
+		
 		// also get the role from the db to assign a default role 
 		Optional<Role> optionalRole = this.roleRepo.findByRole("USER");
 		Role role = optionalRole.orElseThrow(() -> new RuntimeException("No Role found with role name USER"));

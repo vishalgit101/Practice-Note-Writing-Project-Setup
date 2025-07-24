@@ -9,5 +9,7 @@ import entity.Users;
 public interface UserRepo extends JpaRepository<Users, Long> {
 	
 	Optional<Users> findByUsername(String username);
+	
+	Boolean existsByUsername(String username);
 
 }

@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import filter.JwtFilter;
 import jakarta.annotation.security.PermitAll;
@@ -39,11 +40,17 @@ public class SecurityConfigs {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http
-					.csrf(csrf -> csrf.disable())
+					.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+							.ignoringRequestMatchers("/api/auth/public/**", "/login", "/signup")
+							)
+					//.csrf(csrf -> csrf.disable())
 					.authorizeHttpRequests(auth -> 
 						auth.requestMatchers("/login", "/signup").permitAll()
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
+						.requestMatchers("/api/csrf-token").permitAll()
+						.requestMatchers("/api/auth/public/**").permitAll()
 						.anyRequest().authenticated())
+						
 					.httpBasic(Customizer.withDefaults())
 					.sessionManagement(session  -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 					.addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class)

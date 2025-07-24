@@ -11,6 +11,7 @@ import java.util.function.Function;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,14 @@ public class JwtService {
 
 	private String secretKey = "";
 	
+	@Value("${spring.app.jwtSecret}")
+	private String jwtSecret;
+	
+	
+	// can also set the expiration time from the applications properties
+	
 	// for generating a random key
-	public JwtService() {
+	/*public JwtService() {
 		try {
 			KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
 			SecretKey sk = keyGen.generateKey();
@@ -35,7 +42,7 @@ public class JwtService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	public String generateToken(String username) {
 		
@@ -48,7 +55,7 @@ public class JwtService {
 			.add(claims)
 			.subject(username)
 			.issuedAt(new Date(System.currentTimeMillis()))
-			.expiration(new Date(System.currentTimeMillis()* 1000 * 60 * 10))
+			.expiration(new Date(System.currentTimeMillis()* 1000 * 60 * 60))
 			.and()
 			.signWith(getKey())
 			.compact();
@@ -56,9 +63,27 @@ public class JwtService {
 		
 	}
 
-	private Key getKey() {
+	/*private Key getKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes); // convert into byte before passing secret key inside hmacShaKeyFor
+	}*/
+	
+	private Key getKey() {
+		byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+		return Keys.hmacShaKeyFor(keyBytes); // convert into byte before passing secret key inside hmacShaKeyFor
+	}
+	
+	//generate key
+	public String generateKey() {
+		try {
+			KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+			SecretKey sk = keyGen.generateKey();
+			this.secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return this.secretKey;
 	}
 
 	public Claims extractAllClaims(String token) {
