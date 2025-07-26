@@ -14,10 +14,13 @@ public class NoteServiceImpl implements NoteService {
 	
 	private final NotesRepo notesRepo;
 	
+	private final AuditLogsService auditLogsService;
+	
 	@Autowired
-	public NoteServiceImpl(NotesRepo notesRepo) {
+	public NoteServiceImpl(NotesRepo notesRepo, AuditLogsService auditLogsService) {
 		super();
 		this.notesRepo = notesRepo;
+		this.auditLogsService = auditLogsService;
 	}
 
 	@Override
@@ -25,6 +28,8 @@ public class NoteServiceImpl implements NoteService {
 		Note tempNote = new Note();
 		tempNote.setOwnerUsername(username);
 		tempNote.setContent(content);
+		this.auditLogsService.logNoteCreation(username, tempNote);
+		// add time stamp
 		return this.notesRepo.save(tempNote);
 	}
 

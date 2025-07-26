@@ -23,6 +23,9 @@ public class Note {
 	
 	@Column(name="owner_username")
 	private String ownerUsername;
+	
+	// add createation time
+	// updation time
 
 	public Note(String content, String ownerUsername) {
 		super();
