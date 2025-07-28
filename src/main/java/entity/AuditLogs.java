@@ -24,7 +24,7 @@ public class AuditLogs {
 	private String username;
 	
 	@Column(name="note_id")
-	private  long noteId;
+	private  Long noteId;
 	
 	@Column(name="note_content")
 	private String noteContent;
