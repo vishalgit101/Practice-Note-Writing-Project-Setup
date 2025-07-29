@@ -35,6 +35,29 @@ public class UserPrincipal implements UserDetails{
 	}
 
 	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return this.user.isAccountNonExpired();
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return this.user.isAccountNonLocked();
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return this.user.isCredentialsNonExpired();
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return this.user.isEnabled();
+	}
+
+	@Override
 	public String getPassword() {
 		return this.user.getPassword();
 	}

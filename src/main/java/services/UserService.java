@@ -2,6 +2,7 @@ package services;
 
 import java.util.List;
 
+import entity.Role;
 import entity.Users;
 
 public interface UserService {
@@ -17,5 +18,17 @@ public interface UserService {
 	List<Users> getAll();
 
 	String verify(Users user);
+
+	void updateAccountLockStatus(Long userId, boolean lock);
+
+	List<Role> getAllRoles();
+
+	void updateAccountExpiryStatus(Long userId, boolean lock);
+
+	void updateAccountEnabledStatus(Long userId, boolean lock);
+
+	void updateCredentialsExpiryStatus(Long userId, boolean expire);
+
+	void updatePassword(Long userId, String password);
 	
 }

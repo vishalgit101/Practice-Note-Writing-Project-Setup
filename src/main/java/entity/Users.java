@@ -1,5 +1,6 @@
 package entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,6 +44,107 @@ public class Users {
 	@JoinTable(name="user_role", joinColumns = @JoinColumn(name="user_id", referencedColumnName = "id"),
 	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private Set<Role> roles = new HashSet<Role>();
+	
+	@Column(name = "account_non_locked")
+	private boolean accountNonLocked = true;
+
+	@Column(name = "account_non_expired")
+	private boolean accountNonExpired = true;
+
+	@Column(name = "credentials_non_expired")
+	private boolean credentialsNonExpired = true;
+
+	@Column(name = "enabled")
+	private boolean enabled = true;
+
+	@Column(name = "credentials_expiry_date")
+	private LocalDate credentialsExpiryDate;
+
+	@Column(name = "account_expiry_date")
+	private LocalDate accountExpiryDate;
+
+	@Column(name = "two_factor_secret")
+	private String twoFactorSecret;
+
+	@Column(name = "is_two_factor_enabled")
+	private boolean isTwoFactorEnabled = false;
+
+	@Column(name = "sign_up_method")
+	private String signUpMethod;	
+    
+    
+
+	public boolean isAccountNonLocked() {
+		return accountNonLocked;
+	}
+
+	public void setAccountNonLocked(boolean accountNonLocked) {
+		this.accountNonLocked = accountNonLocked;
+	}
+
+	public boolean isAccountNonExpired() {
+		return accountNonExpired;
+	}
+
+	public void setAccountNonExpired(boolean accountNonExpired) {
+		this.accountNonExpired = accountNonExpired;
+	}
+
+	public boolean isCredentialsNonExpired() {
+		return credentialsNonExpired;
+	}
+
+	public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+		this.credentialsNonExpired = credentialsNonExpired;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public LocalDate getCredentialsExpiryDate() {
+		return credentialsExpiryDate;
+	}
+
+	public void setCredentialsExpiryDate(LocalDate credentialsExpiryDate) {
+		this.credentialsExpiryDate = credentialsExpiryDate;
+	}
+
+	public LocalDate getAccountExpiryDate() {
+		return accountExpiryDate;
+	}
+
+	public void setAccountExpiryDate(LocalDate accountExpiryDate) {
+		this.accountExpiryDate = accountExpiryDate;
+	}
+
+	public String getTwoFactorSecret() {
+		return twoFactorSecret;
+	}
+
+	public void setTwoFactorSecret(String twoFactorSecret) {
+		this.twoFactorSecret = twoFactorSecret;
+	}
+
+	public boolean isTwoFactorEnabled() {
+		return isTwoFactorEnabled;
+	}
+
+	public void setTwoFactorEnabled(boolean isTwoFactorEnabled) {
+		this.isTwoFactorEnabled = isTwoFactorEnabled;
+	}
+
+	public String getSignUpMethod() {
+		return signUpMethod;
+	}
+
+	public void setSignUpMethod(String signUpMethod) {
+		this.signUpMethod = signUpMethod;
+	}
 
 	public Users() {
 		super();

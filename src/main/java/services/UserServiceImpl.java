@@ -109,6 +109,66 @@ public class UserServiceImpl implements UserService {
 		
 		return "fail";
 	}
+
+	@Override
+	public void updateAccountLockStatus(Long userId, boolean lock) {
+		Optional<Users> optionalUser = this.userRepo.findById(userId);
+		Users tempUser = optionalUser.orElseThrow(()-> new UsernameNotFoundException("No User Found"));
+		tempUser.setAccountNonLocked(!lock);
+		this.userRepo.save(tempUser);
+	}
+
+	@Override
+	public List<Role> getAllRoles() {
+		
+		List<Role> roles =  this.roleRepo.findAll();
+		return roles;
+	}
+	
+	@Override
+	public void updateAccountExpiryStatus(Long userId, boolean expire) {
+		
+		Optional<Users> optionalUser = this.userRepo.findById(userId);
+		Users tempUser = optionalUser.orElseThrow(()-> new UsernameNotFoundException("No User Found"));
+		tempUser.setAccountNonExpired(!expire);
+		this.userRepo.save(tempUser);
+		
+	}
+	
+	@Override
+	public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+		
+		Optional<Users> optionalUser = this.userRepo.findById(userId);
+		Users tempUser = optionalUser.orElseThrow(()-> new UsernameNotFoundException("No User Found"));
+		tempUser.setEnabled(!enabled);
+		this.userRepo.save(tempUser);
+		
+	}
+
+	@Override
+	public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+		
+		Optional<Users> optionalUser = this.userRepo.findById(userId);
+		Users tempUser = optionalUser.orElseThrow(()-> new UsernameNotFoundException("No User Found"));
+		tempUser.setCredentialsNonExpired(!expire);
+		this.userRepo.save(tempUser);
+		
+	}
+
+	@Override
+	public void updatePassword(Long userId, String password) {
+		
+		try {
+			Optional<Users> optionalUser = this.userRepo.findById(userId);
+			Users tempUser = optionalUser.orElseThrow(()-> new UsernameNotFoundException("No User Found"));
+			tempUser.setPassword(this.encoder.encode(password));
+			this.userRepo.save(tempUser);
+		}catch (Exception e) {
+			throw new RuntimeException("Failed to Update the password");
+		}
+		
+	}
+	
 	
 	
 
