@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,8 +13,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import entity.PasswordResetToken;
 import entity.Role;
 import entity.Users;
+import repos.PasswordRestTokenRepo;
 import repos.RoleRepo;
 import repos.UserRepo;
 
@@ -28,13 +30,21 @@ public class UserServiceImpl implements UserService {
 	private final JwtService jwtService;
 	private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
 	
+	private final PasswordRestTokenRepo passwordRestTokenRepo;
+	private final EmailService emailService;
+	
+	@Value("${frontend.url}")
+	private String frontendUrl;
+	
 	@Autowired
-	public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, AuthenticationManager authManager, JwtService jwtService) {
+	public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, AuthenticationManager authManager, JwtService jwtService, PasswordRestTokenRepo passwordRestTokenRepo, EmailService emailService) {
 		super();
 		this.userRepo = userRepo;
 		this.roleRepo = roleRepo;
 		this.authManager = authManager;
 		this.jwtService = jwtService;
+		this.passwordRestTokenRepo = passwordRestTokenRepo;
+		this.emailService = emailService;
 	}
 
 	@Override
@@ -169,6 +179,52 @@ public class UserServiceImpl implements UserService {
 		
 	}
 	
+	@Override
+	public void generatePasswordResetToken(String email) {
+		// find user by that email
+		Optional<Users> optUser = this.userRepo.findByUsername(email);
+		Users user = optUser.orElseThrow(()-> new UsernameNotFoundException("User Not found"));
+		
+		// now pass the user in the constructor of password reset token object's instance
+		PasswordResetToken passwordResetToken = new PasswordResetToken(user); // its constructor did the job of creating everything
+		
+		// Now save this instance in its repo
+		this.passwordRestTokenRepo.save(passwordResetToken);
+		
+		String resetUrl = frontendUrl + "/reset-password?token=" + passwordResetToken.getToken();
+		
+		// Send Email to the User
+		this.emailService.sendPasswordResetEmail(user.getUsername(), resetUrl); // username is email
+	}
+
+	@Override
+	public void resetPassword(String token, String newPassword) {
+		
+		// check if the token is not expired
+		Optional<PasswordResetToken> optResetToken =  this.passwordRestTokenRepo.findByToken(token);
+		
+		PasswordResetToken resetToken = optResetToken.orElseThrow(()-> new RuntimeException("Token not found"));
+		
+		if(resetToken.getExpiry().isBefore(LocalDateTime.now())) {
+			throw new RuntimeException("Token Got Expired");
+		}
+		
+		if(resetToken.isUsed()) {
+			throw new RuntimeException("Token is Already used");
+		}
+		
+		// fetch the user with the token
+		//Optional<Users> optUser = this.userRepo.findById(resetToken.getUser().getId()); // user is lazy loaded?
+		
+		// resetToken already have the user
+		Users user = resetToken.getUser();		
+		// then upadate the user password and then change the user password
+		user.setPassword(this.encoder.encode(newPassword));
+		resetToken.setUsed(true);
+		
+		this.passwordRestTokenRepo.save(resetToken);
+		this.userRepo.save(user);
+	}
 	
 	
 
