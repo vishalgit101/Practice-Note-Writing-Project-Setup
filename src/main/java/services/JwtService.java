@@ -46,6 +46,9 @@ public class JwtService {
 	
 	public String generateToken(String username) {
 		
+		// My Own code just includes the username in the jwt token
+		// but roles can be added depending on the frontend or your app architecture
+		
 		System.out.println("Generate Token Hit");
 		
 		Map<String, Object> claims = new HashMap<String, Object>();

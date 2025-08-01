@@ -1,6 +1,7 @@
 package services;
 
 import java.util.List;
+import java.util.Optional;
 
 import entity.Role;
 import entity.Users;
@@ -34,5 +35,7 @@ public interface UserService {
 	void generatePasswordResetToken(String email);
 
 	void resetPassword(String token, String newPassword);
+
+	Optional<Users> findByUsernameOptional(String username);
 	
 }

@@ -1,7 +1,9 @@
 package configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -33,10 +35,15 @@ public class SecurityConfigs {
 	
 	private JwtFilter jwtFilter;
 	
-	public SecurityConfigs(UserDetailsService myUserDetailsService, JwtFilter jwtFilter) {
+	private OAuth2LoginSuccessHandler successHandler;
+	
+	@Autowired
+	@Lazy
+	public SecurityConfigs(UserDetailsService myUserDetailsService, JwtFilter jwtFilter, OAuth2LoginSuccessHandler successHandler) {
 		super();
 		this.myUserDetailsService = myUserDetailsService;
 		this.jwtFilter = jwtFilter;
+		this.successHandler = successHandler;
 	}
 
 	@Bean
@@ -51,7 +58,12 @@ public class SecurityConfigs {
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.requestMatchers("/api/csrf-token").permitAll()
 						.requestMatchers("/api/auth/public/**").permitAll()
+						.requestMatchers("/oauth2/**").permitAll()
 						.anyRequest().authenticated())
+					
+					.oauth2Login(oauth2 -> {
+						oauth2.successHandler(this.successHandler);
+					})
 						
 					.httpBasic(Customizer.withDefaults())
 					.sessionManagement(session  -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

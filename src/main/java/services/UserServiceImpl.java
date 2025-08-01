@@ -76,6 +76,11 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	public Optional<Users> findByUsernameOptional(String username){
+		return this.userRepo.findByUsername(username);
+	}
+	
+	@Override
 	public Users findByUserId(Long userId) {
 		Optional<Users> tempUser =  this.userRepo.findById(userId);
 		Users user = tempUser.orElseThrow(()-> new UsernameNotFoundException("User not found with user id: " + userId));
