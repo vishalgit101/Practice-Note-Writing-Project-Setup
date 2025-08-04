@@ -1,6 +1,6 @@
 package restControllers;
 
-import org.springframework.web.bind.annotation.GetMapping;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +10,7 @@ import entity.Users;
 import services.UserServiceImpl;
 
 @RestController
-@RequestMapping("/signup") // could change it to /api/auth
+@RequestMapping("/api/auth/public/signup") // could change it to /api/auth
 public class SignupController {
 	
 	// DI User Service

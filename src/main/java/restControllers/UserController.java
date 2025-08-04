@@ -33,7 +33,7 @@ public class UserController {
 
 	@GetMapping("/user") // not public
 	public ResponseEntity<Map<String, Object>> getUser(@AuthenticationPrincipal UserPrincipal principal){
-		
+		System.out.println("User Principal in auth user: " + principal.getUsername());
 		Optional<Users> tempUser = this.userRepo.findByUsername(principal.getUsername());
 		
 		Users user = tempUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -44,6 +44,12 @@ public class UserController {
 		payload.put("Username", user.getUsername());
 		payload.put("Roles", roles );
 		payload.put("Id", user.getId());
+		payload.put("createdDate", user.getCreatedDate());
+		payload.put("updatedDate", user.getUpdatedDate());
+		payload.put("accountNonExpired", user.isAccountNonExpired());
+		payload.put("accountNonLocked", user.isAccountNonLocked());
+		payload.put("credentialsNonExpired", user.isCredentialsNonExpired());
+		payload.put("twoFactorEnabled", user.isTwoFactorEnabled());
 		return ResponseEntity.status(HttpStatus.OK).body(payload);
 		
 	}

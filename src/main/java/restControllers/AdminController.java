@@ -1,7 +1,10 @@
 package restControllers;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import DTO.RoleDto;
 import entity.Role;
 import entity.Users;
 import model.UserPrincipal;
@@ -38,15 +42,18 @@ public class AdminController {
 	
 	// Update the user role
 	@PutMapping("/update-role")
-	public Users updateRole(@RequestParam Long userId, @RequestParam String role) {
-		
-		return this.userServiceImpl.updateRole(userId, role);
+	public Users updateRole(@RequestParam Long userId, @RequestParam String roleName) {
+		System.out.println(roleName + "Roles in update role");
+		return this.userServiceImpl.updateRole(userId, roleName);
 		
 	}
 	
-	@GetMapping("/user/{id}")
-	public Users userById(@PathVariable Long userId) {
-		return this.userServiceImpl.findByUserId(userId);
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<Users> userById(@PathVariable Long userId) {
+		System.out.println("User controller for fetching single user got hit");
+		Users user = this.userServiceImpl.findByUserId(userId);
+		System.out.println(user);
+		return ResponseEntity.ok().body(user);
 	}
 	
 	@PutMapping("/update-lock-status")
@@ -56,8 +63,19 @@ public class AdminController {
 	}
 	
 	@GetMapping("/roles")
-	public List<Role> getAllRoles(){
-		return this.userServiceImpl.getAllRoles();
+	public ResponseEntity<List<RoleDto>> getAllRoles(){
+		List<Role> roles =  this.userServiceImpl.getAllRoles();
+		System.out.println("Roles: " + roles);
+		List<RoleDto> rolesDto = new ArrayList<RoleDto>();
+		
+		for(Role role: roles) {
+			rolesDto.add(new RoleDto(role.getId(), "ROLE_" + role.getRole()));
+		}
+		
+		
+		
+		return ResponseEntity.ok().body(rolesDto);
+		
 	}
 	
 	@PutMapping("/update-expiry-status")

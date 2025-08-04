@@ -23,6 +23,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import filter.JwtFilter;
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @Configuration
@@ -49,6 +50,7 @@ public class SecurityConfigs {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http
+					.cors(Customizer.withDefaults())
 					.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 							.ignoringRequestMatchers("/api/auth/public/**", "/login", "/signup")
 							)
@@ -61,10 +63,20 @@ public class SecurityConfigs {
 						.requestMatchers("/oauth2/**").permitAll()
 						.anyRequest().authenticated())
 					
+					 /*.exceptionHandling(exception -> exception
+					            .authenticationEntryPoint((request, response, authException) -> {
+					                // Return 401 instead of redirect or popup
+					                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+					            })
+					        )*/
+					
 					.oauth2Login(oauth2 -> {
 						oauth2.successHandler(this.successHandler);
 					})
-						
+					
+					.formLogin(Customizer.withDefaults())
+					//.httpBasic(basic -> basic.disable())
+					//.formLogin(form -> form.disable())
 					.httpBasic(Customizer.withDefaults())
 					.sessionManagement(session  -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 					.addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class)

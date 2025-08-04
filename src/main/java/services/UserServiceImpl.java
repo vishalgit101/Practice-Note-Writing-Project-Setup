@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
 	public Users findByUserId(Long userId) {
 		Optional<Users> tempUser =  this.userRepo.findById(userId);
 		Users user = tempUser.orElseThrow(()-> new UsernameNotFoundException("User not found with user id: " + userId));
+		System.out.println("User By UserId in UserService: " + user);
 		return user;
 	}
 	
@@ -93,8 +94,10 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public Users updateRole(Long userId, String roleName ) {
+	public Users updateRole(Long userId, String tempRoleName ) {
 		// find user and then role from the db
+		String[] roleNameWithPrefix = tempRoleName.split("_");
+		String roleName = roleNameWithPrefix[1];
 		Optional<Users> optionalUser = this.userRepo.findById(userId);
 		Users user = optionalUser.orElseThrow(() ->  new UsernameNotFoundException("User not found with user id of: " + userId));
 		

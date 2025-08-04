@@ -29,6 +29,7 @@ public class AuditLogsController {
 	}
 	
 	@GetMapping("/note/{id}") // this is for when id is essential and @RequestParam when you want some sort of filtering or optional params
+	@PreAuthorize("hasRole('ADMIN')")
 	public List<AuditLogs> getNoteAuditLog(@PathVariable("id") Long id){
 		return this.auditLogsService.getAuditLogsForNoteId(id);
 	}

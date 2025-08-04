@@ -9,5 +9,5 @@ import entity.AuditLogs;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLogs, Long>{
-	List<AuditLogs> findByNoteId(Long Noteid);
+	List<AuditLogs> findByNoteId(Long noteid);
 }
