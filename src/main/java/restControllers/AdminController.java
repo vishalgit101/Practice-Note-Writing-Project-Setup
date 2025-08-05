@@ -79,8 +79,8 @@ public class AdminController {
 	}
 	
 	@PutMapping("/update-expiry-status")
-	public ResponseEntity<String> updateAccountExpiryStatus(@RequestParam Long userId, @RequestParam boolean lock){
-		this.userServiceImpl.updateAccountExpiryStatus(userId, lock);
+	public ResponseEntity<String> updateAccountExpiryStatus(@RequestParam Long userId, @RequestParam boolean expire){
+		this.userServiceImpl.updateAccountExpiryStatus(userId, expire);
 		return ResponseEntity.ok("Account Expiry Status Updated");
 	}
 	

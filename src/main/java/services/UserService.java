@@ -37,5 +37,7 @@ public interface UserService {
 	void resetPassword(String token, String newPassword);
 
 	Optional<Users> findByUsernameOptional(String username);
+
+	void updateCredentials(Users user, String newUsername, String newPassword);
 	
 }

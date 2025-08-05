@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
 		
 		Optional<Users> optionalUser = this.userRepo.findById(userId);
 		Users tempUser = optionalUser.orElseThrow(()-> new UsernameNotFoundException("No User Found"));
-		tempUser.setEnabled(!enabled);
+		tempUser.setEnabled(enabled);
 		this.userRepo.save(tempUser);
 		
 	}
@@ -232,6 +232,15 @@ public class UserServiceImpl implements UserService {
 		
 		this.passwordRestTokenRepo.save(resetToken);
 		this.userRepo.save(user);
+	}
+
+	@Override
+	public void updateCredentials(Users user, String newUsername, String newPassword) {
+		
+		user.setUsername(newUsername);
+		user.setPassword(this.encoder.encode(newPassword));
+		this.userRepo.save(user);
+		
 	}
 	
 	
