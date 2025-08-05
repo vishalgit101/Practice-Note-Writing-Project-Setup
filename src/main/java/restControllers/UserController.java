@@ -19,10 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+
 import entity.Role;
 import entity.Users;
 import model.UserPrincipal;
 import repos.UserRepo;
+import services.JwtService;
+import services.TotpService;
 import services.UserService;
 
 @RestController
@@ -31,12 +35,16 @@ public class UserController {
 	// Di- user repo 
 	private final UserRepo userRepo;
 	private final UserService userService;
+	private final TotpService totpService;
+	private final JwtService jwtService;
 
 	@Autowired
-	public UserController(UserRepo userRepo, UserService userService) {
+	public UserController(UserRepo userRepo, UserService userService, TotpService totpService, JwtService jwtService) {
 		super();
 		this.userRepo = userRepo;
 		this.userService = userService;
+		this.totpService = totpService;
+		this.jwtService = jwtService;
 	}
 
 	@GetMapping("/user") // not public
@@ -72,10 +80,10 @@ public class UserController {
 	}
 	
 	@PutMapping("/update-expiry-status")
-	public ResponseEntity<String> updateAccountExpiryStatus( @RequestParam boolean lock, @AuthenticationPrincipal UserPrincipal principal) throws UserPrincipalNotFoundException{
+	public ResponseEntity<String> updateAccountExpiryStatus( @RequestParam boolean expire, @AuthenticationPrincipal UserPrincipal principal) throws UserPrincipalNotFoundException{
 		String username = principal.getUsername();
 		Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
-		this.userService.updateAccountExpiryStatus(user.getId(), lock);
+		this.userService.updateAccountExpiryStatus(user.getId(), expire);
 		return ResponseEntity.ok("Account Expiry Status Updated");
 	}
 	
@@ -107,4 +115,75 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}	
 	}
+	
+	// For Enabling 2fa
+	@PostMapping("/enable-2fa") // this is for generating the qr code and will be enabled after verification
+	public ResponseEntity<Map<String, String>> enable2FA(@AuthenticationPrincipal UserPrincipal principal) throws UserPrincipalNotFoundException{
+		String username = principal.getUsername();
+		Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
+		GoogleAuthenticatorKey secret = this.userService.generateAuthenticatorKey(user.getId());
+		String qrCodeUrl = this.totpService.getQrCodeUrl(secret, username);
+		Map<String, String> payload = new HashMap<>();
+		payload.put("qrCodeUrl", qrCodeUrl);
+		return ResponseEntity.ok(payload);
+		
+	}
+	
+	@PostMapping("/disable-2fa")
+	public ResponseEntity<String> disable2FA(@AuthenticationPrincipal UserPrincipal principal) throws UserPrincipalNotFoundException{
+		String username = principal.getUsername();
+		Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
+		this.userService.disable2FA(user.getId());
+		return ResponseEntity.ok("2FA Disabled Successfully");
+		
+	}
+	
+	@PostMapping("/verify-2fa")
+	public ResponseEntity<String> verify2FA(@RequestParam int code ,@AuthenticationPrincipal UserPrincipal principal) throws UserPrincipalNotFoundException{
+		String username = principal.getUsername();
+		Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
+		
+		boolean isValid = this.userService.validate2FACode(user.getId(), code);
+		
+		if(isValid) {
+			this.userService.enable2FA(user.getId());
+			return ResponseEntity.ok("2FA Disabled Successfully"); 
+		}else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid 2FA Code");
+		}
+	}
+	
+	
+	
+	
+	// For checking if the 2FA is enabled or not
+	@GetMapping("/user/2fa-status")
+	public ResponseEntity<?> get2FAStatus(@AuthenticationPrincipal UserPrincipal principal) throws UserPrincipalNotFoundException{
+		String username = principal.getUsername();
+		Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
+		
+		if(user != null) {
+			return ResponseEntity.ok().body(Map.of("is2faEnabled", user.isTwoFactorEnabled()));
+		}else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not found");
+		}
+		
+	}
+	
+	// For Login with 2FA
+	// and its marked as public cos authentication is not yet successful
+	 @PostMapping("/public/verify-2fa-login")
+	 public ResponseEntity<String> verify2FALogin(@RequestParam int code, @RequestParam String jwtToken) throws UserPrincipalNotFoundException {
+        String username = this.jwtService.extractUsername(jwtToken);
+        Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
+		
+        boolean isValid = userService.validate2FACode(user.getId(), code);
+        
+        if (isValid) {
+            return ResponseEntity.ok("2FA Verified");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid 2FA Code");
+        }
+  	}
 }

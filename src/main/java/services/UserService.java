@@ -3,6 +3,8 @@ package services;
 import java.util.List;
 import java.util.Optional;
 
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+
 import entity.Role;
 import entity.Users;
 
@@ -39,5 +41,13 @@ public interface UserService {
 	Optional<Users> findByUsernameOptional(String username);
 
 	void updateCredentials(Users user, String newUsername, String newPassword);
+
+	GoogleAuthenticatorKey generateAuthenticatorKey(Long userId);
+
+	boolean validate2FACode(Long userId, int code);
+
+	void enable2FA(Long userId);
+
+	void disable2FA(Long userId);
 	
 }

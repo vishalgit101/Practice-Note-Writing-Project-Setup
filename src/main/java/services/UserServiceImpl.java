@@ -13,6 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+
 import entity.PasswordResetToken;
 import entity.Role;
 import entity.Users;
@@ -33,11 +36,13 @@ public class UserServiceImpl implements UserService {
 	private final PasswordRestTokenRepo passwordRestTokenRepo;
 	private final EmailService emailService;
 	
+	private final TotpService totpService;
+	
 	@Value("${frontend.url}")
 	private String frontendUrl;
 	
 	@Autowired
-	public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, AuthenticationManager authManager, JwtService jwtService, PasswordRestTokenRepo passwordRestTokenRepo, EmailService emailService) {
+	public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, AuthenticationManager authManager, JwtService jwtService, PasswordRestTokenRepo passwordRestTokenRepo, EmailService emailService, TotpService totpService) {
 		super();
 		this.userRepo = userRepo;
 		this.roleRepo = roleRepo;
@@ -45,6 +50,7 @@ public class UserServiceImpl implements UserService {
 		this.jwtService = jwtService;
 		this.passwordRestTokenRepo = passwordRestTokenRepo;
 		this.emailService = emailService;
+		this.totpService = totpService;
 	}
 
 	@Override
@@ -122,7 +128,7 @@ public class UserServiceImpl implements UserService {
 		if(authentication.isAuthenticated()) {
 			//return "success";
 			System.out.println("Is Authenticated Condiational Hit");
-			return this.jwtService.generateToken(user.getUsername());
+			return this.jwtService.generateToken(user.getUsername(), user.isTwoFactorEnabled());
 		}
 		
 		return "fail";
@@ -243,6 +249,33 @@ public class UserServiceImpl implements UserService {
 		
 	}
 	
+	// for 2FA or MFA
+	@Override
+	public GoogleAuthenticatorKey generateAuthenticatorKey(Long userId) {
+		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
+		GoogleAuthenticatorKey key = this.totpService.generateSecret();
+		user.setTwoFactorSecret(key.getKey());
+		this.userRepo.save(user);
+		return key;
+	}
 	
-
+	@Override
+	public boolean validate2FACode(Long userId, int code) {
+		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
+		return this.totpService.verifyCode(user.getTwoFactorSecret(), code);
+	}
+	
+	@Override
+	public void enable2FA(Long userId) {
+		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
+		user.setEnabled(true);
+		this.userRepo.save(user);
+	}
+	
+	@Override
+	public void disable2FA(Long userId) {
+		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
+		user.setEnabled(false);
+		this.userRepo.save(user);
+	}
 }

@@ -44,7 +44,7 @@ public class JwtService {
 		}
 	}*/
 	
-	public String generateToken(String username) {
+	public String generateToken(String username, boolean is2faEnabled) {
 		
 		// My Own code just includes the username in the jwt token
 		// but roles can be added depending on the frontend or your app architecture
@@ -52,6 +52,7 @@ public class JwtService {
 		System.out.println("Generate Token Hit");
 		
 		Map<String, Object> claims = new HashMap<String, Object>();
+		claims.put("is2faEnabled", is2faEnabled);
 		
 		return Jwts.builder()
 			.claims()

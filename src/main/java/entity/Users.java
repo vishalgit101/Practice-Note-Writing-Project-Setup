@@ -71,8 +71,6 @@ public class Users {
 
 	@Column(name = "sign_up_method")
 	private String signUpMethod;	
-    
-    
 
 	public boolean isAccountNonLocked() {
 		return accountNonLocked;

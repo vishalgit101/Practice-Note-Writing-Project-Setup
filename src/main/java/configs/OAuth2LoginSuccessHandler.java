@@ -161,7 +161,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 			        .orElseThrow(() -> new RuntimeException("User not found"));*/
 
 			// Generate JWT using only email
-			String jwtToken = jwtService.generateToken(email);  // JWT subject = email
+			String jwtToken = jwtService.generateToken(email, false);  // JWT subject = email, for oauth sign in people no option for 2fa?
 			
 			 // Redirect to the frontend with the JWT token
 	        String targetUrl = UriComponentsBuilder.fromUriString(this.frontendUrl + "/oauth2/redirect")
