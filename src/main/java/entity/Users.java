@@ -70,7 +70,10 @@ public class Users {
 	private boolean isTwoFactorEnabled = false;
 
 	@Column(name = "sign_up_method")
-	private String signUpMethod;	
+	private String signUpMethod;
+	
+	@Column(name="profile_picture")
+	private String profilePicture;
 
 	public boolean isAccountNonLocked() {
 		return accountNonLocked;
@@ -219,6 +222,16 @@ public class Users {
 	public void addRole(Role role) {
 		this.roles.add(role);
 		role.getUsers().add(this);
+	}
+	
+	
+
+	public String getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(String profilePicture) {
+		this.profilePicture = profilePicture;
 	}
 
 	@Override

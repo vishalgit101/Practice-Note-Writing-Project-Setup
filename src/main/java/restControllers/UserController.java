@@ -1,11 +1,23 @@
 package restControllers;
 
+import java.io.IOException;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -68,6 +80,7 @@ public class UserController {
 		payload.put("accountNonLocked", user.isAccountNonLocked());
 		payload.put("credentialsNonExpired", user.isCredentialsNonExpired());
 		payload.put("twoFactorEnabled", user.isTwoFactorEnabled());
+		payload.put("profilePicture", user.getProfilePicture());
 		return ResponseEntity.status(HttpStatus.OK).body(payload);
 		
 	}
@@ -188,10 +201,56 @@ public class UserController {
         }
   	}
 	 
+	 @PostMapping("/upload/profile-pic")
+	 public ResponseEntity<?> uploadProfilePic(@RequestParam MultipartFile file, @AuthenticationPrincipal UserPrincipal principal) throws IOException{
+		 
+		 System.out.println("upload mapping got hit");
+		// ✅ Max size in bytes (2MB)
+	    long maxSize = 2 * 1024 * 1024;
+
+	    if (file.getSize() > maxSize) {
+	        return ResponseEntity
+	                .badRequest()
+	                .body("File size exceeds 2MB limit.");
+	    }
+		 
+		 String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+		// Path path = Paths.get("/uploads/profile/" + filename);
+		 Path path = Paths.get("D:/uploads/profile", filename);
+
+		 Files.createDirectories(path.getParent());
+		 Files.write(path, file.getBytes());
+		 
+		 String username = principal.getUsername();
+		 Users user = this.userRepo.findByUsername(username).orElseThrow(()-> new UserPrincipalNotFoundException("User not found Exception"));
+			
+		 user.setProfilePicture("/profile/" + filename);
+		 this.userRepo.save(user);
+		 Map<String, String> payload = new HashMap<String, String>();
+		 payload.put("profilePicture", user.getProfilePicture());
+		 return ResponseEntity.ok(payload);
+	 }
+	 
 	/* @PostMapping("/upload/profile-pic")
-	 public ResponseEntity<String> uploadProfilePic(@RequestParam MultipartFile file, @AuthenticationPrincipal UserPrincipal principal){
+	 public ResponseEntity<String> uploadProfilePic( @AuthenticationPrincipal UserPrincipal principal) {
 		 
-		 
-		 
+		 System.out.println("upload mapping got hit");
+		return ResponseEntity.ok("Fuck");
 	 }*/
+	 
+	/* @GetMapping("/profile/{filename:.+}")
+	 public ResponseEntity<Resource> getProfileImage(@PathVariable String filename) throws IOException {
+	     Path imagePath = Paths.get(System.getProperty("user.dir"), "uploads", "profile", filename);
+	     if (!Files.exists(imagePath)) {
+	         return ResponseEntity.notFound().build();
+	     }
+
+	     Resource resource = new UrlResource(imagePath.toUri());
+	     String contentType = Files.probeContentType(imagePath);
+
+	     return ResponseEntity.ok()
+	             .contentType(MediaType.parseMediaType(contentType))
+	             .body(resource);
+	 }*/
+
 }

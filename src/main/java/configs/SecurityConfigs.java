@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -63,6 +64,7 @@ public class SecurityConfigs {
 						.requestMatchers("/api/csrf-token").permitAll()
 						.requestMatchers("/api/auth/public/**").permitAll()
 						.requestMatchers("/oauth2/**").permitAll()
+						.requestMatchers("/profile/**").permitAll()
 						.anyRequest().authenticated())
 					
 					 /*.exceptionHandling(exception -> exception
@@ -116,5 +118,11 @@ public class SecurityConfigs {
     public GoogleAuthenticator googleAuthenticator() {
         return new GoogleAuthenticator();
     }*/
+	
+	@Bean
+	public WebSecurityCustomizer webSecurityCustomizer() {
+	    return (web) -> web.ignoring()
+	            .requestMatchers("/profile/**");
+	}
 	
 }
