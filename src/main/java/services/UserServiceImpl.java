@@ -19,6 +19,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import entity.PasswordResetToken;
 import entity.Role;
 import entity.Users;
+import model.UserPrincipal;
 import repos.PasswordRestTokenRepo;
 import repos.RoleRepo;
 import repos.UserRepo;
@@ -125,11 +126,24 @@ public class UserServiceImpl implements UserService {
 		
 		// Its like Authentication Object (UnAuthenticated) -> Through this.authManager -> Becomes Authenticated Object 
 		
+		/*if(authentication.isAuthenticated()) {
+			//return "success";
+			System.out.println("Is Authenticated Condiational Hit");
+			// this user only has username and password
+			//so get the user principal
+			return this.jwtService.generateToken(user.getUsername(), user.isTwoFactorEnabled());
+		}*/
+		
 		if(authentication.isAuthenticated()) {
 			//return "success";
 			System.out.println("Is Authenticated Condiational Hit");
-			return this.jwtService.generateToken(user.getUsername(), user.isTwoFactorEnabled());
+			// this user only has username and password
+			//so get the user principal
+			UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+			
+			return this.jwtService.generateToken(principal.getUsername(),principal.is2faEnabled());
 		}
+		
 		
 		return "fail";
 	}
@@ -268,14 +282,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void enable2FA(Long userId) {
 		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
-		user.setEnabled(true);
+		user.setTwoFactorEnabled(true);
 		this.userRepo.save(user);
 	}
 	
 	@Override
 	public void disable2FA(Long userId) {
 		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
-		user.setEnabled(false);
+		user.setTwoFactorEnabled(false);
 		this.userRepo.save(user);
 	}
 }

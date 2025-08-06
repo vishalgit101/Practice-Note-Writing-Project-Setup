@@ -66,5 +66,9 @@ public class UserPrincipal implements UserDetails{
 	public String getUsername() {
 		return this.user.getUsername();
 	}
+	
+	public boolean is2faEnabled() {
+		return this.user.isTwoFactorEnabled();
+	}
 
 }

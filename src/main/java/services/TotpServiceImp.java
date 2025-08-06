@@ -1,5 +1,9 @@
 package services;
 
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +16,6 @@ public class TotpServiceImp implements TotpService {
 	// DI for gAuth
 	private final GoogleAuthenticator gAuth;
 
-	//@Autowired
 	public TotpServiceImp(GoogleAuthenticator gAuth) {
 		super();
 		this.gAuth = gAuth;
@@ -31,8 +34,9 @@ public class TotpServiceImp implements TotpService {
 	
 	@Override
 	public String getQrCodeUrl(GoogleAuthenticatorKey secret, String username) { // going to generate QR url that will have an image that we embed on the frontend
-		return GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("NotesVault", username, secret);
-		
+		 String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("NotesVault", username, secret);
+		//String qrCodeImageUrl = "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=" + URLEncoder.encode(otpAuthURL, StandardCharsets.UTF_8);
+		return otpAuthURL;
 	}
 	
 	@Override 

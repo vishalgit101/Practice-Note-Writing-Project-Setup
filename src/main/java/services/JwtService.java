@@ -51,18 +51,20 @@ public class JwtService {
 		
 		System.out.println("Generate Token Hit");
 		
-		Map<String, Object> claims = new HashMap<String, Object>();
-		claims.put("is2faEnabled", is2faEnabled);
+		Map<String, Object> claimsMap = new HashMap<String, Object>();
+		claimsMap.put("is2faEnabled", is2faEnabled); // is2faEnabled
 		
 		return Jwts.builder()
-			.claims()
-			.add(claims)
+			//.claims()
+			//.add(claimsMap)
+			.claim("is2faEnabled", is2faEnabled)
 			.subject(username)
 			.issuedAt(new Date(System.currentTimeMillis()))
-			.expiration(new Date(System.currentTimeMillis()* 1000 * 60 * 60))
-			.and()
+			.expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8)) // expire in 8h, use L, to avoid integer overflow
+			//.and()
 			.signWith(getKey())
 			.compact();
+		
 		
 		
 	}

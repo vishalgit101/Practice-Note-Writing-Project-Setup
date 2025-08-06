@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 
@@ -186,4 +187,11 @@ public class UserController {
                     .body("Invalid 2FA Code");
         }
   	}
+	 
+	/* @PostMapping("/upload/profile-pic")
+	 public ResponseEntity<String> uploadProfilePic(@RequestParam MultipartFile file, @AuthenticationPrincipal UserPrincipal principal){
+		 
+		 
+		 
+	 }*/
 }
