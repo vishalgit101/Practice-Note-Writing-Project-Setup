@@ -1,7 +1,9 @@
 package services;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +113,19 @@ public class UserServiceImpl implements UserService {
 		Optional<Role> optionalRole = this.roleRepo.findByRole(roleName);
 		Role role = optionalRole.orElseThrow(() -> new RuntimeException("No role with Role Name found: " + roleName));
 		
-		user.addRole(role);
+		System.out.println("ROle Nmae: " + roleName);
+		if(roleName.equals("ADMIN")) {
+			user.addRole(role);
+		}
+		
+		if(roleName.equals("USER")) {
+			user.setRoles(new HashSet<Role>());
+			user.addRole(role);
+		}
+		
+		// similarly can also add the logic for manager role
+		
+		//user.addRole(role);
 		//return user; // thats why updating in memeory was needed
 		return this.userRepo.save(user);
 		
@@ -291,5 +305,14 @@ public class UserServiceImpl implements UserService {
 		Users user = this.userRepo.findById(userId).orElseThrow(()-> new UsernameNotFoundException("No user found"));
 		user.setTwoFactorEnabled(false);
 		this.userRepo.save(user);
+	}
+	
+	//  Contact form
+	@Override
+	public void contactForm(Map<String, String> payoad) {
+		String email = payoad.get("email");
+		String name = payoad.get("name");
+		String msg = payoad.get("message");
+		this.emailService.sendContactMessage(email, name, msg);
 	}
 }

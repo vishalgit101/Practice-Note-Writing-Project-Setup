@@ -27,6 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -231,26 +232,11 @@ public class UserController {
 		 return ResponseEntity.ok(payload);
 	 }
 	 
-	/* @PostMapping("/upload/profile-pic")
-	 public ResponseEntity<String> uploadProfilePic( @AuthenticationPrincipal UserPrincipal principal) {
-		 
-		 System.out.println("upload mapping got hit");
-		return ResponseEntity.ok("Fuck");
-	 }*/
+	 @PostMapping("/public/contact")
+	 public ResponseEntity<String> contactForm(@RequestBody Map<String, String> payload){
+		 System.out.println(payload);
+		 this.userService.contactForm(payload);
+		 return ResponseEntity.ok("Message Sent");
+	 }
 	 
-	/* @GetMapping("/profile/{filename:.+}")
-	 public ResponseEntity<Resource> getProfileImage(@PathVariable String filename) throws IOException {
-	     Path imagePath = Paths.get(System.getProperty("user.dir"), "uploads", "profile", filename);
-	     if (!Files.exists(imagePath)) {
-	         return ResponseEntity.notFound().build();
-	     }
-
-	     Resource resource = new UrlResource(imagePath.toUri());
-	     String contentType = Files.probeContentType(imagePath);
-
-	     return ResponseEntity.ok()
-	             .contentType(MediaType.parseMediaType(contentType))
-	             .body(resource);
-	 }*/
-
 }

@@ -1,6 +1,7 @@
 package services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
@@ -49,5 +50,7 @@ public interface UserService {
 	void enable2FA(Long userId);
 
 	void disable2FA(Long userId);
+
+	void contactForm(Map<String, String> payoad);
 	
 }

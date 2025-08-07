@@ -54,10 +54,10 @@ public class SecurityConfigs {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http
 					.cors(Customizer.withDefaults())
-					.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+					/*.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 							.ignoringRequestMatchers("/api/auth/public/**", "/login", "/signup")
-							)
-					//.csrf(csrf -> csrf.disable())
+							)*/
+					.csrf(csrf -> csrf.disable())
 					.authorizeHttpRequests(auth -> 
 						auth.requestMatchers("/login", "/signup").permitAll()
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -67,12 +67,19 @@ public class SecurityConfigs {
 						.requestMatchers("/profile/**").permitAll()
 						.anyRequest().authenticated())
 					
-					 /*.exceptionHandling(exception -> exception
-					            .authenticationEntryPoint((request, response, authException) -> {
-					                // Return 401 instead of redirect or popup
-					                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-					            })
-					        )*/
+					.exceptionHandling(exception -> exception
+						    .authenticationEntryPoint((request, response, authException) -> {
+						        // Handles unauthenticated access (401)
+						        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+						    })
+						    .accessDeniedHandler((request, response, accessDeniedException) -> {
+						        // Handles forbidden access or CSRF failures (403)
+						        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+						        response.setContentType("application/json");
+						        response.getWriter().write("{\"error\": \"CSRF token missing or invalid\"}");
+						    })
+						)
+
 					
 					.oauth2Login(oauth2 -> {
 						oauth2.successHandler(this.successHandler);
